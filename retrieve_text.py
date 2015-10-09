@@ -39,33 +39,48 @@ def get_comment_text(html_doc):
                     num_comments = num_comments + 1
     return comments_text
 
+# get url of the page ref'd by the next button
 def get_next_page_url(html_doc):
     a_tag = BeautifulSoup(html_doc, 'html.parser').find('a', {'rel':'nofollow next'})
     return a_tag.get('href')
 
+# get comment text
 def get_all_comments(url):
     global text_data, num_comments, pages_visited
     page_html = urllib.urlopen(url).read()
     comment_links = find_comment_links(page_html)
     for link in comment_links:
+        standardized = standardize_url(link)
         pages_visited = pages_visited + 1
-        raw = urllib.urlopen(link).read()
+        raw = urllib.urlopen(standardized).read()
         text_data.append(get_comment_text(raw))
         # so reddit doesn't yell at me
         time.sleep(.75)
-    print"Went to {0} pages and got {1} comments!".format(pages_visited,num_comments)
+    print ("Went to {0} pages and got {1} comments!".format(pages_visited,num_comments))
     pages_visited = 0
     num_comments = 0
 
+# in case the urls have special characters
+def standardize_url(url):
+    u = url.encode('utf-8')
+    return u
+
+# for testing
 sub = sys.argv[1]
 num_pages = int(sys.argv[2])
 # should really rename this script something to do with reddit
 url = 'https://www.reddit.com/r/' + sub
 page_urls.append(url)
 
-for i in xrange(0, num_pages - 1):
-    page_urls.append(get_next_page_url(urllib.urlopen(page_urls[i]).read()))
+for i in xrange(0, num_pages):
+    page_urls[i] = standardize_url(page_urls[i])
+    page_data = urllib.urlopen(page_urls[i]).read()
+    page_urls.append(get_next_page_url(page_data))
+    # so reddit definitely won't yell at me
+    time.sleep(.5)
 
 for link in page_urls:
-    print"going to {0}...".format(link)
+    print ("going to {0}...".format(link))
     get_all_comments(link)
+    # more reddit yelling prevention
+    time.sleep(2)
