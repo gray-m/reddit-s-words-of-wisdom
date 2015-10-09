@@ -49,7 +49,7 @@ def get_all_comments(url):
     page_html = urllib.urlopen(url).read()
     comment_links = find_comment_links(page_html)
     for link in comment_links:
-        standardized = standardize_url(link)
+        standardized = standardize_text(link)
         pages_visited = pages_visited + 1
         raw = urllib.urlopen(standardized).read()
         text_data.append(get_comment_text(raw))
@@ -60,8 +60,8 @@ def get_all_comments(url):
     num_comments = 0
 
 # in case the urls have special characters
-def standardize_url(url):
-    u = url.encode('utf-8')
+def standardize_text(text):
+    u = text.encode('utf-8')
     return u
 
 # for testing
@@ -76,7 +76,7 @@ page_urls.append(url)
 
 # get urls for all the pages to search
 for i in xrange(0, num_pages):
-    page_urls[i] = standardize_url(page_urls[i])
+    page_urls[i] = standardize_text(page_urls[i])
     page_data = urllib.urlopen(page_urls[i]).read()
     page_urls.append(get_next_page_url(page_data))
     # so reddit definitely won't yell at me
@@ -88,3 +88,9 @@ for link in page_urls:
     get_all_comments(link)
     # more reddit yelling prevention
     time.sleep(2)
+
+f = open(sub,'w')
+for text in text_data:
+    for line in text:
+        f.write(standardize_text(line) + '\n')
+f.close()
