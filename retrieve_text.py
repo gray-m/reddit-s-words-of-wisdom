@@ -5,7 +5,6 @@ import time
 import sys
 
 # TODO write to a file for the other stuff to access
-# TODO handle non-ascii characters in the urls
 
 # counters for testing
 num_comments = 0
