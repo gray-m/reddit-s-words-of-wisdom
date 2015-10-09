@@ -4,8 +4,6 @@ import urllib
 import time
 import sys
 
-# TODO write to a file for the other stuff to access
-
 # counters for testing
 num_comments = 0
 pages_visited = 0
