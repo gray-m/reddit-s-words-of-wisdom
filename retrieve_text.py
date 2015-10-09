@@ -66,11 +66,15 @@ def standardize_url(url):
 
 # for testing
 sub = sys.argv[1]
-num_pages = int(sys.argv[2])
+
+# because zero-base indexing
+num_pages = int(sys.argv[2]) - 1
+
 # should really rename this script something to do with reddit
 url = 'https://www.reddit.com/r/' + sub
 page_urls.append(url)
 
+# get urls for all the pages to search
 for i in xrange(0, num_pages):
     page_urls[i] = standardize_url(page_urls[i])
     page_data = urllib.urlopen(page_urls[i]).read()
@@ -78,6 +82,7 @@ for i in xrange(0, num_pages):
     # so reddit definitely won't yell at me
     time.sleep(.5)
 
+# get text from the comments
 for link in page_urls:
     print ("going to {0}...".format(link))
     get_all_comments(link)
