@@ -1,11 +1,14 @@
-# TODO implement Markov chains
 import sys
+import math
+import random
 
+# init lists
 lines = []
 words = []
 words_filtered = []
 consecutives = []
 
+# make the markov chains
 def create_chains(corpus):
     global words_filtered
     global consecutives
@@ -19,8 +22,9 @@ def create_chains(corpus):
             consecutives.append([])
             consecutives[-1].append(corpus[wordct + 1])
         else:
-            consecutives[word_index].append(corpus[wordct + 1])
-            wordct = wordct + 1
+            if wordct + 1 < len(corpus):
+                consecutives[word_index].append(corpus[wordct + 1])
+        wordct = wordct + 1
 
 sub = sys.argv[1]
 f = open(sub, 'r')
@@ -30,12 +34,28 @@ for word in text:
     for thing in temp:
         words.append(thing)
 
+# make the chains
 create_chains(words)
-print len(words)
-print len(words_filtered)
-print len(consecutives)
-for thing in consecutives:
-    if len(thing) > 1:
-        print thing
 
+# init the sentences
+# currently more 'ten commandments' than 'words of wisdom' but that can change
+sentence_rand = []
+sentence = ['Thou','shalt']
+consec_word = ""
+start_rand = int(math.floor(random.random() * len(words_filtered)))
+if 'not' in words_filtered:
+    start = words_filtered.index('not')
+else:
+    start = words_filtered.index('Not')
+sentence.append(words_filtered[start])
+
+# tries very hard to generate a full sentence
+# still gotta fix some of the special characters that come up
+while "." not in consec_word:
+    consec_index = int(math.floor(random.random() * len(consecutives[start])))
+    consec_word = consecutives[start][consec_index]
+    sentence.append(consec_word)
+    start = words_filtered.index(consec_word)
+
+print " ".join(sentence)
 f.close()
