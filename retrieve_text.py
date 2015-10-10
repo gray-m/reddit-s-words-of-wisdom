@@ -4,7 +4,7 @@ import urllib
 import time
 import sys
 
-# counters for testing
+# counters
 num_comments = 0
 pages_visited = 0
 # global lists
