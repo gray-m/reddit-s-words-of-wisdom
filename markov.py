@@ -46,7 +46,7 @@ def generate(start):
         start_index = words_filtered.index(sentence[-1].upper())
     else:
         start_index = start_rand
-    while '.' not in consec_word and ' ' not in consec_word:
+    while '.' not in consec_word and ' ' not in consec_word and '?' not in consec_word and '!' not in consec_word:
         consec_index = int(math.floor(random.random() * len(consecutives[start_index])))
         consec_word = consecutives[start_index][consec_index]
         sentence.append(consec_word)
@@ -94,5 +94,7 @@ else:
     write_filtered_to_file()
 
 # generate from a seed phrase
-print generate('It is unwise to')
+beginnings = ['Look both ways before you', 'Listen to your', 'Eat your', 'Say no to', 'Don\'t let your dreams be', 'Just do']
+beg_index = int(math.floor(len(beginnings) * random.random()))
+print generate(beginnings[beg_index])
 f.close()
