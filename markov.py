@@ -1,18 +1,24 @@
 import sys
 import math
 import random
+import glob
+
+# get subreddit
+sub = sys.argv[1].lower()
 
 # init lists
 lines = []
 words = []
 words_filtered = []
 consecutives = []
+filtered_reddits = []
+for reddit in glob.glob('*_filtered.txt'):
+    filtered_reddits.append(reddit[:-13])
 
-# make the markov chains
-def create_chains(corpus):
+# filter the raw text
+def filter_raw(corpus):
     global words_filtered
     global consecutives
-
     wordct = 0
     for word in corpus:
         if word not in words_filtered:
@@ -26,36 +32,67 @@ def create_chains(corpus):
                 consecutives[word_index].append(corpus[wordct + 1])
         wordct = wordct + 1
 
-sub = sys.argv[1]
-f = open(sub, 'r')
+# make the markov chains
+def generate(start):
+    global words_filtered
+    global consecutives
+    sentence = start.split(' ')
+    beginning = ''
+    consec_word = ''
+    start_rand = int(math.floor(random.random() * len(words_filtered)))
+    if sentence[-1] in words_filtered:
+        start_index = words_filtered.index(sentence[-1])
+    elif sentence[-1].upper() in words_filtered:
+        start_index = words_filtered.index(sentence[-1].upper())
+    else:
+        start_index = start_rand
+    while '.' not in consec_word and ' ' not in consec_word:
+        consec_index = int(math.floor(random.random() * len(consecutives[start_index])))
+        consec_word = consecutives[start_index][consec_index]
+        sentence.append(consec_word)
+        start_index = words_filtered.index(consec_word)
+    return ' '.join(sentence)
+
+# write filtered text to the approprate files
+def write_filtered_to_file():
+    global words_filtered
+    global consecutives
+    w_words = open(sub + '_filtered.txt', 'w')
+    w_consec = open(sub + '_consec.txt', 'w')
+    for i in range(len(words_filtered)):
+        w_words.write(words_filtered[i] + '\n')
+        w_consec.write(' '.join(consecutives[i]) + '\n')
+    w_words.close()
+    w_consec.close()
+
+# read filtered text from the appropriate files
+def read_filtered_from_file():
+    global words_filtered
+    global consecutives
+    global sub
+    r_words = open(sub + '_filtered.txt', 'r')
+    r_consec = open(sub + '_consec.txt', 'r')
+    for word in r_words:
+        words_filtered.append(word.rstrip())
+    for consec in r_consec:
+        consecutives.append(consec.split())
+    r_words.close()
+    r_consec.close()
+
+f = open(sub + '.txt', 'r')
 text = f.read().split(' ')
 for word in text:
     temp = word.split('\n')
-    for thing in temp:
-        words.append(thing)
+    for clean in temp:
+        words.append(clean)
 
-# make the chains
-create_chains(words)
-
-# init the sentences
-# currently more 'ten commandments' than 'words of wisdom' but that can change
-sentence_rand = []
-sentence = ['Thou','shalt']
-consec_word = ""
-start_rand = int(math.floor(random.random() * len(words_filtered)))
-if 'not' in words_filtered:
-    start = words_filtered.index('not')
+# get the words for the chains
+if sub in filtered_reddits:
+    read_filtered_from_file()
 else:
-    start = words_filtered.index('Not')
-sentence.append(words_filtered[start])
+    filter_raw(words)
+    write_filtered_to_file()
 
-# tries very hard to generate a full sentence
-# still gotta fix some of the special characters that come up
-while "." not in consec_word:
-    consec_index = int(math.floor(random.random() * len(consecutives[start])))
-    consec_word = consecutives[start][consec_index]
-    sentence.append(consec_word)
-    start = words_filtered.index(consec_word)
-
-print " ".join(sentence)
+# generate from a seed phrase
+print generate('It is unwise to')
 f.close()

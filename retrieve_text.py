@@ -63,7 +63,7 @@ def standardize_text(text):
     return u
 
 # for testing
-sub = sys.argv[1]
+sub = sys.argv[1].lower()
 
 # because zero-base indexing
 num_pages = int(sys.argv[2]) - 1
@@ -85,9 +85,9 @@ for link in page_urls:
     print ("going to {0}...".format(link))
     get_all_comments(link)
     # more reddit yelling prevention
-    time.sleep(2)
+    #time.sleep(2)
 
-f = open(sub,'w')
+f = open(sub + '.txt','w')
 for text in text_data:
     for line in text:
         f.write(standardize_text(line) + '\n')
